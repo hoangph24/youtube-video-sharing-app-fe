@@ -1,0 +1,23 @@
+body {
+    background-color: rgb(165, 165, 255);
+    color: white;
+  }
+  
+  .register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .register-form input,
+  .register-form button {
+    padding: 10px;
+    font-size: 1em;
+  }
