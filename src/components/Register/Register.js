@@ -9,12 +9,17 @@ function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
+  const protocol = process.env.PROTOCOL;
+  const host = process.env.HOST;
+  const port = process.env.PORT;
+  const url = `${protocol}://${host}:${port}`;
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/register', {
+      const response = await fetch(`${url}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

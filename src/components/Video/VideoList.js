@@ -7,7 +7,7 @@ function VideoList() {
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const videosPerPage = 5;
+  const videosPerPage = process.env.VIDEOS_PER_PAGE || 5;
 
   const [videoLink, setVideoLink] = useState('');
   const [videoDescription, setVideoDescription] = useState('');
@@ -16,6 +16,11 @@ function VideoList() {
 
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  const protocol = process.env.PROTOCOL;
+  const host = process.env.HOST;
+  const port = process.env.PORT;
+  const url = `${protocol}://${host}:${port}`;
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
@@ -30,7 +35,7 @@ function VideoList() {
     const fetchVideos = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:8000/videos?page=${currentPage}&limit=${videosPerPage}`);
+        const response = await fetch(`${url}/videos?page=${currentPage}&limit=${videosPerPage}`);
         const data = await response.json();
         setVideos(data);
       } catch (error) {
@@ -44,7 +49,7 @@ function VideoList() {
 
   const handleShare = async () => {
     const username = localStorage.getItem('username');
-    const response = await fetch('http://localhost:8000/videos', {
+    const response = await fetch(`${url}/videos`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +69,7 @@ function VideoList() {
   };
 
   async function handleEdit(id, newUrl, newTitle, newDescription) {
-    const response = await fetch(`http://localhost:8000/videos/${id}`, {
+    const response = await fetch(`${url}/videos/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -81,7 +86,7 @@ function VideoList() {
   
   async function handleDelete(id) {
     try {
-      const response = await fetch(`http://localhost:8000/videos/${id}`, {
+      const response = await fetch(`${url}/videos/${id}`, {
         method: 'DELETE',
       });
 
@@ -187,7 +192,7 @@ function VideoList() {
             <iframe
               width="560"
               height="315"
-              src={`https://www.youtube.com/embed/${video.id}`}
+              src={`${process.env.YOUTUBE_EMBED_URL}/${video.id}`}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
