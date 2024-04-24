@@ -38,7 +38,6 @@ function Login() {
   };
 
   return (
-    
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
         <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />

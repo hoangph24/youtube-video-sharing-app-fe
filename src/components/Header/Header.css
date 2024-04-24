@@ -1,6 +1,7 @@
 .header-container {
     padding: 10px;
-    background-color: #f8f8f8;
+    height: 40px;
+    background-color: #f8ebde;
     border-bottom: 1px solid #ccc;
   }
   
@@ -9,11 +10,21 @@
     padding: 5px 10px;
     font-size: 16px;
     border: none;
-    background-color: #ff6347;
+    background-color: rgb(255, 190, 165);
     color: white;
     cursor: pointer;
   }
   
   .header-container button:hover {
     background-color: #ff4500;
+  }
+
+  .logout-button {
+    background-color: #ff0000;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
   }
