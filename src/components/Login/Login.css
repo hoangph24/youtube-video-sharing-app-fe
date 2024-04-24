@@ -22,17 +22,33 @@
   .login-form button {
     padding: 10px;
     font-size: 16px;
-    background-color: #007BFF;
+    background-color: #ec9fec;
     color: white;
     border: none;
     cursor: pointer;
   }
   
   .login-form button:hover {
-    background-color: #0056b3;
+    background-color: #e271b3fd;
   }
   
   .error {
     color: red;
     margin-top: 10px;
+  }
+
+  .loading {
+    display: block;
+    margin: 0 auto;
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #e271b3fd;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }

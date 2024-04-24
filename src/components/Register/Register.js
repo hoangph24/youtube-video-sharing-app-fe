@@ -50,7 +50,7 @@ function Register() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {isLoading ? <div>Loading...</div> : <button type="submit">Register</button>}
+        {isLoading ? <div className="loading"></div> : <button type="submit">Register</button>}
         {error && <div className="error">{error}</div>}
       </form>
     </div>

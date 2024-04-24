@@ -38,11 +38,12 @@ function Login() {
   };
 
   return (
+    
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
         <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        {isLoading ? <div>Loading...</div> : <button type="submit">Login</button>}
+        {isLoading ? <div className="loading"></div> : <button type="submit">Login</button>}
         {error && <div className="error">{error}</div>}
         <button type="button" onClick={() => navigate('/register')}>Register</button>
       </form>

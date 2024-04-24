@@ -1,8 +1,3 @@
-body {
-    background-color: rgb(255, 190, 165);
-    color: white;
-  }
-  
   .register-container {
     display: flex;
     justify-content: center;
@@ -16,13 +11,41 @@ body {
     gap: 10px;
   }
   
-  .register-form input,
+  .register-form input {
+    padding: 10px;
+    font-size: 16px;
+  }
+  
   .register-form button {
     padding: 10px;
-    font-size: 1em;
+    font-size: 16px;
+    background-color: #ec9fec;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+
+  .register-form button:hover {
+    background-color: #e271b3fd;
   }
 
   .error {
     color: red;
     margin-top: 10px;
+  }
+
+  .loading {
+    display: block;
+    margin: 0 auto;
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #e271b3fd;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }

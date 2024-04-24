@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-route
 import Login from './components/Login/Login';
 import Register from './components/Register/Register';
 import Video from './components/Video/VideoList';
+import Header from './components/Header/Header';
 
 function Redirect() {
   const navigate = useNavigate();
@@ -22,14 +23,18 @@ function Redirect() {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/videos" element={<Video />} />
-        <Route path="/" element={<Redirect />} />
-      </Routes>
-    </Router>
+    <div>
+      <Header/>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/videos" element={<Video />} />
+          <Route path="/" element={<Redirect />} />
+        </Routes>
+      </Router>
+    </div>
+    
   );
 }
 

@@ -122,3 +122,26 @@
     font-weight: bold;
     text-align: center;
   }
+
+  .video-item {
+    margin-bottom: 20px;
+  }
+  
+  .video-item h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+  
+  .video-item p {
+    margin: 5px 0;
+    font-size: 16px;
+  }
+
+  .share-video input {
+    flex: 0.4;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-right: 10px;
+  }
