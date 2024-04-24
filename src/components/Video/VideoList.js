@@ -8,12 +8,14 @@ function VideoList() {
   const [isLoading, setIsLoading] = useState(false);
   const videosPerPage = 5;
 
+  const [videoLink, setVideoLink] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  console.log('isLoggedIn', isLoggedIn)
 
   useEffect(() => {
-
     const fetchVideos = async () => {
       setIsLoading(true);
       try {
@@ -29,6 +31,26 @@ function VideoList() {
     fetchVideos();
   }, [currentPage, isLoggedIn]);
 
+  const handleShare = async () => {
+    const username = localStorage.getItem('username');
+    const response = await fetch('http://localhost:8000/videos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, url: videoLink }),
+    });
+
+    if (response.ok) {
+      setVideoLink('');
+      setSuccessMessage('Video shared successfully!');
+      setErrorMessage('');
+      setCurrentPage(1);
+    } else {
+      setErrorMessage('Failed to share video');
+    }
+  };
+
   const handlePrevious = () => {
     setCurrentPage((oldPage) => Math.max(oldPage - 1, 1));
   };
@@ -37,16 +59,27 @@ function VideoList() {
     setCurrentPage((oldPage) => oldPage + 1);
   };
 
-  if (!isLoggedIn) {
-    navigate('/login');
-  }
+  // if (!isLoggedIn) {
+  //   navigate('/login');
+  // }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="loader"></div>;
   }
 
   return (
     <div className="video-list">
+      <div className="share-video">
+        <input
+          type="text"
+          value={videoLink}
+          onChange={e => setVideoLink(e.target.value)}
+          placeholder="Paste YouTube video link here"
+        />
+        <button onClick={handleShare}>Share</button>
+      </div>
+      {successMessage && <div className="success-message">{successMessage}</div>}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
       {videos.map((video, index) => (
         <div key={index} className="video-item">
           {video.url ? (

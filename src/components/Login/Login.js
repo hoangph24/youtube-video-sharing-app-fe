@@ -24,6 +24,7 @@ function Login() {
 
       if (response.ok) {
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('username', username);
         navigate('/videos');
       } else {
         const errorData = await response.json();
