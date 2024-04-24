@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './VideoList.css';
 
 function VideoList() {
+  const [username, setUsername] = useState('');
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -15,6 +16,15 @@ function VideoList() {
 
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    } else {
+      setUsername('');
+    }
+  }, []);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -53,6 +63,38 @@ function VideoList() {
     }
   };
 
+  async function handleEdit(id, newUrl, newTitle, newDescription) {
+    const response = await fetch(`http://localhost:8000/videos/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: newUrl,
+        title: newTitle,
+        description: newDescription,
+      }),
+    });
+  
+    return response;
+  }
+  
+  async function handleDelete(id) {
+    try {
+      const response = await fetch(`http://localhost:8000/videos/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete video');
+      }
+
+      setVideos(videos.filter(video => video.id !== id));
+    } catch (error) {
+      alert('An error occurred while deleting the video. Please try again.');
+    }
+  }
+
   const handlePrevious = () => {
     setCurrentPage((oldPage) => Math.max(oldPage - 1, 1));
   };
@@ -88,20 +130,8 @@ function VideoList() {
       </div>
       {successMessage && <div className="success-message">{successMessage}</div>}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
-      {videos.map((video, index) => (
-      <div className="video-item" key={index}>
-        <h2>{video.title}</h2>
-        <p>Shared by: {video.sharer}</p>
-        <p>{video.description}</p>
-        <iframe
-          width="560"
-          height="315"
-          src={`https://www.youtube.com/embed/${video.id}`}
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
-      </div>
+      {videos.map((video) => (
+        <VideoItem key={video.id} video={video} username={username} />
     ))}
       <div className="pagination">
         <button onClick={handlePrevious}>Previous</button>
@@ -110,6 +140,69 @@ function VideoList() {
       </div>
     </div>
   );
+
+  function VideoItem({ video, username }) {
+    const [isEditing, setIsEditing] = useState(false);
+    const [newTitle, setNewTitle] = useState(video.title);
+    const [newDescription, setNewDescription] = useState(video.description);
+    const [newUrl, setNewUrl] = useState(video.url);
+  
+    const handleEditClick = () => {
+      setIsEditing(true);
+    };
+  
+    const handleSubmitClick = async () => {
+      try {
+        const response = await handleEdit(video.id, newUrl, newTitle, newDescription);
+        if (!response.ok) {
+          throw new Error('Failed to update video');
+        }
+        const updatedVideo = await response.json();
+        setVideoLink(updatedVideo.url);
+        setIsEditing(false);
+      } catch (error) {
+        alert('An error occurred while updating the video. Please try again.');
+      }
+    };
+
+    const handleCancelClick = () => {
+      setIsEditing(false);
+    };
+  
+    return (
+      <div className="video-item">
+        {isEditing ? (
+          <div>
+            <input className="input-field" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="New Title"/>
+            <input className="input-field" value={newDescription} onChange={(e) => setNewDescription(e.target.value)} placeholder="New Description"/>
+            <input className="input-field" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} placeholder="New Video URL"/>
+            <button className="button button-edit" onClick={handleSubmitClick}>Submit</button>
+          <button className="button button-delete" onClick={handleCancelClick}>Cancel</button>
+          </div>
+        ) : (
+          <div>
+            <h2>{video.title}</h2>
+            <p>Shared by: {video.sharer}</p>
+            <p>{video.description}</p>
+            <iframe
+              width="560"
+              height="315"
+              src={`https://www.youtube.com/embed/${video.id}`}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+            {username === video.sharer && (
+              <div>
+                <button className="button button-edit" onClick={handleEditClick}>Edit</button>
+                <button className="button button-delete" onClick={() => handleDelete(video.id)}>Delete</button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
 }
 
 export default VideoList;

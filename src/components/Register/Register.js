@@ -43,14 +43,16 @@ function Register() {
           placeholder="Username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          required
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
-        {isLoading ? <div className="loading"></div> : <button type="submit">Register</button>}
+        {isLoading ? <div className="loading"></div> : <button type="submit" disabled={!username || !password}>Register</button>}
         {error && <div className="error">{error}</div>}
       </form>
     </div>

@@ -24,9 +24,16 @@
     border: none;
     cursor: pointer;
   }
+  .register-form button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
 
   .register-form button:hover {
     background-color: #e271b3fd;
+  }
+  .register-form button:hover:disabled {
+    background-color: #cccccc;
   }
 
   .error {

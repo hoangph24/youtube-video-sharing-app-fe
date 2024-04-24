@@ -42,7 +42,7 @@ function Login() {
       <form className="login-form" onSubmit={handleSubmit}>
         <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        {isLoading ? <div className="loading"></div> : <button type="submit">Login</button>}
+        {isLoading ? <div className="loading"></div> : <button type="submit" disabled={!username || !password}>Login</button>}
         {error && <div className="error">{error}</div>}
         <button type="button" onClick={() => navigate('/register')}>Register</button>
       </form>

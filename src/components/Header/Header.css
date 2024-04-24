@@ -3,6 +3,9 @@
     height: 40px;
     background-color: #f8ebde;
     border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
   
   .header-container button {
@@ -27,4 +30,10 @@
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
+  }
+  
+  .header-title {
+    font-size: 24px;
+    color: #443333;
+    text-align: center;
   }

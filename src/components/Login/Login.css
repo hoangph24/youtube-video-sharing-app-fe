@@ -26,14 +26,25 @@
     border: none;
     cursor: pointer;
   }
+  .login-form button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
   
   .login-form button:hover {
     background-color: #e271b3fd;
+  }
+  .login-form button:hover:disabled {
+    background-color: #cccccc;
   }
   
   .error {
     color: red;
     margin-top: 10px;
+    padding: 10px;
+    border: 1px solid red;
+    border-radius: 5px;
+    background-color: #ffe6e6;
   }
 
   .loading {
