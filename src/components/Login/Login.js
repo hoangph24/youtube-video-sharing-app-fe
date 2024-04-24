@@ -23,6 +23,7 @@ function Login() {
       });
 
       if (response.ok) {
+        localStorage.setItem('isLoggedIn', 'true');
         navigate('/videos');
       } else {
         const errorData = await response.json();
@@ -42,6 +43,7 @@ function Login() {
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         {isLoading ? <div>Loading...</div> : <button type="submit">Login</button>}
         {error && <div className="error">{error}</div>}
+        <button type="button" onClick={() => navigate('/register')}>Register</button>
       </form>
     </div>
   );
