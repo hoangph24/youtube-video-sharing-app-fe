@@ -64,7 +64,8 @@ function VideoList() {
       setErrorMessage('');
       setCurrentPage(1);
     } else {
-      setErrorMessage('Failed to share video');
+      const errorData = await response.json();
+      setErrorMessage(errorData.message);
     }
   };
 
@@ -91,7 +92,8 @@ function VideoList() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete video');
+        const errorData = await response.json();
+        setErrorMessage(errorData.message);
       }
 
       setVideos(videos.filter(video => video.id !== id));
@@ -160,7 +162,8 @@ function VideoList() {
       try {
         const response = await handleEdit(video.id, newUrl, newTitle, newDescription);
         if (!response.ok) {
-          throw new Error('Failed to update video');
+          const errorData = await response.json();
+          setErrorMessage(errorData.message);
         }
         const updatedVideo = await response.json();
         setVideoLink(updatedVideo.url);
