@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import jwt from 'jsonwebtoken';
 import './VideoList.css';
 
 function VideoList() {
@@ -7,6 +8,7 @@ function VideoList() {
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn'));
   const videosPerPage = process.env.VIDEOS_PER_PAGE || 5;
 
   const [videoLink, setVideoLink] = useState('');
@@ -15,20 +17,22 @@ function VideoList() {
   const [errorMessage, setErrorMessage] = useState('');
 
   const navigate = useNavigate();
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  const token = localStorage.getItem('token');
 
   const protocol = process.env.PROTOCOL;
   const host = process.env.HOST;
   const port = process.env.PORT;
   const url = `${protocol}://${host}:${port}`;
 
-  useEffect(() => {
-    const storedUsername = localStorage.getItem('username');
-    if (storedUsername) {
-      setUsername(storedUsername);
-    } else {
-      setUsername('');
+  useEffect(() => {    
+    let storedUsername = '';
+
+    if (token) {
+      const decodedToken = jwt.decode(token);
+      storedUsername = decodedToken.username;
+      if(storedUsername) setIsLoggedIn(true);
     }
+    setUsername(storedUsername);
   }, []);
 
   useEffect(() => {
@@ -53,6 +57,7 @@ function VideoList() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({ sharer: username, url: videoLink, description: videoDescription }),
     });
@@ -74,6 +79,7 @@ function VideoList() {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
         url: newUrl,
@@ -89,6 +95,9 @@ function VideoList() {
     try {
       const response = await fetch(`${url}/videos/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
       });
 
       if (!response.ok) {

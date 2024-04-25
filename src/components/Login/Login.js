@@ -28,8 +28,9 @@ function Login() {
       });
 
       if (response.ok) {
+        const data = await response.json();
         localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('username', username);
+        localStorage.setItem('token', data.token);
         navigate('/videos');
       } else {
         const errorData = await response.json();

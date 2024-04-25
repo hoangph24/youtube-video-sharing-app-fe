@@ -6,7 +6,7 @@ function Header() {
   const isLoggedIn = localStorage.getItem('isLoggedIn');
 
   const handleLogout = () => {
-    localStorage.removeItem('username');
+    localStorage.removeItem('token');
     localStorage.removeItem('isLoggedIn');
     navigate('/login');
   };
