@@ -204,7 +204,7 @@ function VideoList() {
             <iframe
               width="560"
               height="315"
-              src={`${process.env.YOUTUBE_EMBED_URL}/${video.id}`}
+              src={`${process.env.YOUTUBE_EMBED_URL}/${video.youtubeId}`}
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
