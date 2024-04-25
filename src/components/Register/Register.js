@@ -14,9 +14,35 @@ function Register() {
   const port = process.env.PORT;
   const url = `${protocol}://${host}:${port}`;
 
+  const validateInput = (username, password) => {
+    const usernameRegex = /^[a-zA-Z0-9]{3,30}$/;
+    const passwordRegex = /^[a-zA-Z0-9]{8,15}$/;
+  
+    if (!username || !password) {
+      return 'Username and password are required.';
+    }
+  
+    if (!usernameRegex.test(username)) {
+      return 'Username should only contain alphanumeric characters and be between 3 and 30 characters long.';
+    }
+  
+    if (!passwordRegex.test(password)) {
+      return 'Password should only contain alphanumeric characters and be between 8 and 15 characters long.';
+    }
+  
+    return null;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
+
+    const validationError = validateInput(username, password);
+    if (validationError) {
+      setError(validationError);
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch(`${url}/register`, {
