@@ -9,9 +9,9 @@ function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const protocol = process.env.PROTOCOL;
-  const host = process.env.HOST;
-  const port = process.env.PORT;
+  const protocol = process.env.API_PROTOCOL;
+  const host = process.env.API_HOST;
+  const port = process.env.API_PORT;
   const url = `${protocol}://${host}:${port}`;
 
   const validateInput = (username, password) => {

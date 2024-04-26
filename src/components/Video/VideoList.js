@@ -4,11 +4,12 @@ import jwt from 'jsonwebtoken';
 import './VideoList.css';
 
 function VideoList() {
-  const [username, setUsername] = useState('');
+  const [userId, setUserId] = useState('');
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn'));
+  const [isReloaded, setIsReloaded] = useState(false);
   const videosPerPage = process.env.VIDEOS_PER_PAGE || 5;
 
   const [videoLink, setVideoLink] = useState('');
@@ -19,20 +20,22 @@ function VideoList() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  const protocol = process.env.PROTOCOL;
-  const host = process.env.HOST;
-  const port = process.env.PORT;
+  const protocol = process.env.API_PROTOCOL;
+  const host = process.env.API_HOST;
+  const port = process.env.API_PORT;
   const url = `${protocol}://${host}:${port}`;
 
   useEffect(() => {    
-    let storedUsername = '';
+    let storedUserId = '';
 
     if (token) {
       const decodedToken = jwt.decode(token);
-      storedUsername = decodedToken.username;
-      if(storedUsername) setIsLoggedIn(true);
+      storedUserId = decodedToken.id;
+      if(storedUserId) {
+        setIsLoggedIn(true);
+      }
     }
-    setUsername(storedUsername);
+    setUserId(storedUserId);
   }, []);
 
   useEffect(() => {
@@ -49,17 +52,16 @@ function VideoList() {
     };
 
     fetchVideos();
-  }, [currentPage, isLoggedIn]);
+  }, [currentPage, isLoggedIn, isReloaded]);
 
   const handleShare = async () => {
-    const username = localStorage.getItem('username');
     const response = await fetch(`${url}/videos`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ sharer: username, url: videoLink, description: videoDescription }),
+      body: JSON.stringify({ sharer: userId, url: videoLink, description: videoDescription }),
     });
 
     if (response.ok) {
@@ -68,6 +70,7 @@ function VideoList() {
       setSuccessMessage('Video shared successfully!');
       setErrorMessage('');
       setCurrentPage(1);
+      setIsReloaded(prevState => !prevState);
     } else {
       const errorData = await response.json();
       setErrorMessage(errorData.message);
@@ -106,6 +109,7 @@ function VideoList() {
       }
 
       setVideos(videos.filter(video => video.id !== id));
+      setIsReloaded(prevState => !prevState);
     } catch (error) {
       alert('An error occurred while deleting the video. Please try again.');
     }
@@ -147,7 +151,7 @@ function VideoList() {
       {successMessage && <div className="success-message">{successMessage}</div>}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       {videos.map((video) => (
-        <VideoItem key={video.id} video={video} username={username} />
+        <VideoItem key={video.id} video={video} userId={userId} />
     ))}
       <div className="pagination">
         <button onClick={handlePrevious}>Previous</button>
@@ -157,7 +161,7 @@ function VideoList() {
     </div>
   );
 
-  function VideoItem({ video, username }) {
+  function VideoItem({ video, userId }) {
     const [isEditing, setIsEditing] = useState(false);
     const [newTitle, setNewTitle] = useState(video.title);
     const [newDescription, setNewDescription] = useState(video.description);
@@ -177,6 +181,7 @@ function VideoList() {
         const updatedVideo = await response.json();
         setVideoLink(updatedVideo.url);
         setIsEditing(false);
+        setIsReloaded(prevState => !prevState);
       } catch (error) {
         alert('An error occurred while updating the video. Please try again.');
       }
@@ -199,7 +204,7 @@ function VideoList() {
         ) : (
           <div>
             <h2>{video.title}</h2>
-            <p>Shared by: {video.sharer}</p>
+            <p>Shared by: {video.sharer.username}</p>
             <p>{video.description}</p>
             <iframe
               width="560"
@@ -209,7 +214,7 @@ function VideoList() {
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>
-            {username === video.sharer && (
+            {userId === video.sharer._id && (
               <div>
                 <button className="button button-edit" onClick={handleEditClick}>Edit</button>
                 <button className="button button-delete" onClick={() => handleDelete(video.id)}>Delete</button>
