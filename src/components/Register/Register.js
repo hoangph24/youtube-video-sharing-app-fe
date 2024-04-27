@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+
 import './Register.css';
 
 function Register() {
@@ -9,10 +12,7 @@ function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const protocol = process.env.API_PROTOCOL;
-  const host = process.env.API_HOST;
-  const port = process.env.API_PORT;
-  const url = `${protocol}://${host}:${port}`;
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   const validateInput = (username, password) => {
     const usernameRegex = /^[a-zA-Z0-9]{3,30}$/;
@@ -45,22 +45,20 @@ function Register() {
     }
 
     try {
-      const response = await fetch(`${url}/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
+      await axios.post(`${apiUrl}/${process.env.REACT_APP_API_USERS}/register`, {
+        username,
+        password
       });
   
-      if (response.ok) {
-        navigate('/login');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message);
-      }
+      navigate('/login');
     } catch (error) {
-      setError('An error occurred. Please try again.');
+      if (error.response) {
+        setError(error.response.data);
+      } else if (error.request) {
+        setError('An error occurred. Please try again.');
+      } else {
+        setError('An error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -84,7 +82,12 @@ function Register() {
           required
         />
         {isLoading ? <div className="loading"></div> : <button type="submit" disabled={!username || !password}>Register</button>}
-        {error && <div className="error">{error}</div>}
+        {error && (
+          <div className="error-notification">
+            {error}
+            <button onClick={() => setError(null)}>X</button>
+          </div>
+        )}
       </form>
     </div>
   );

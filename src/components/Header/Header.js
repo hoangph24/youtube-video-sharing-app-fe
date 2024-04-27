@@ -12,7 +12,7 @@ function Header() {
   };
 
   return (
-    <header class="header-container">
+    <header className="header-container">
       <h1 className="header-title">VideosHub</h1>
       {isLoggedIn && <button onClick={handleLogout}>Logout</button>}
     </header>

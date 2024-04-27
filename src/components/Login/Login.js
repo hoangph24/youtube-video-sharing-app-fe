@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 import './Login.css';
 
 function Login() {
@@ -9,35 +11,27 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const protocol = process.env.API_PROTOCOL;
-  const host = process.env.API_HOST;
-  const port = process.env.API_PORT;
-  const url = `${protocol}://${host}:${port}`;
+  const url = process.env.REACT_APP_API_URL;
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${url}/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username, password })
+      const response = await axios.post(`${url}/${process.env.REACT_APP_API_USERS}/login`, {
+        username,
+        password
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('token', data.token);
-        navigate('/videos');
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message);
-      }
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('token', response.data.token);
+      navigate('/videos');
     } catch (error) {
-      setError('An error occurred. Please try again.');
+      if (error.response) {
+        setError(error.response.data);
+      } else {
+        setError('An error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -49,7 +43,12 @@ function Login() {
         <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
         <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         {isLoading ? <div className="loading"></div> : <button type="submit" disabled={!username || !password}>Login</button>}
-        {error && <div className="error">{error}</div>}
+        {error && (
+          <div className="error-notification">
+            {error}
+            <button onClick={() => setError(null)}>X</button>
+          </div>
+        )}
         <button type="button" onClick={() => navigate('/register')}>Register</button>
       </form>
     </div>

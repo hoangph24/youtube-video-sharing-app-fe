@@ -1,8 +1,8 @@
 .header-container {
     padding: 10px;
     height: 40px;
-    background-color: #f8ebde;
-    border-bottom: 1px solid #ccc;
+    background-color: #222222;
+    border-bottom: 1px solid #222222;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -13,17 +13,18 @@
     padding: 5px 10px;
     font-size: 16px;
     border: none;
-    background-color: rgb(255, 190, 165);
+    background-color: #f5d39d;
+    border-radius: 10px;
     color: white;
     cursor: pointer;
   }
   
   .header-container button:hover {
-    background-color: #ff4500;
+    background-color: #d7890a;
   }
 
   .logout-button {
-    background-color: #ff0000;
+    background-color: #7234fa;
     color: #ffffff;
     border: none;
     border-radius: 5px;
@@ -34,6 +35,6 @@
   
   .header-title {
     font-size: 24px;
-    color: #443333;
+    color: #ddd8ce;
     text-align: center;
   }

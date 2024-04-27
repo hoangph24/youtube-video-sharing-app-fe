@@ -21,7 +21,7 @@
   .login-form button {
     padding: 10px;
     font-size: 16px;
-    background-color: #ec9fec;
+    background-color: #7234fa;
     color: white;
     border: none;
     cursor: pointer;
@@ -32,19 +32,34 @@
   }
   
   .login-form button:hover {
-    background-color: #e271b3fd;
+    background-color: #5000fc;
   }
   .login-form button:hover:disabled {
     background-color: #cccccc;
   }
-  
-  .error {
-    color: red;
-    margin-top: 10px;
+
+  .error-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 10px;
     padding: 10px;
-    border: 1px solid red;
+    background-color: #f54a01;
+    color: white;
     border-radius: 5px;
-    background-color: #ffe6e6;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .error-notification button {
+    margin-left: 10px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+
+  .error-notification button:hover {
+    background-color: rgb(255, 0, 0);
+    border-radius: 10px;
   }
 
   .loading {
