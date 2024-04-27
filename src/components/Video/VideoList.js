@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import jwt from 'jsonwebtoken';
 import './VideoList.css';
 
 function VideoList() {
@@ -29,14 +28,29 @@ function VideoList() {
     let storedUserId = '';
 
     if (token) {
-      const decodedToken = jwt.decode(token);
+      const decodedToken = decodeToken(token);
       storedUserId = decodedToken.id;
       if(storedUserId) {
         setIsLoggedIn(true);
       }
     }
     setUserId(storedUserId);
-  }, []);
+  }, [token]);
+
+  function decodeToken(token) {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+  
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error("Invalid token", error);
+      return null;
+    }
+  }
 
   useEffect(() => {
     const fetchVideos = async () => {
