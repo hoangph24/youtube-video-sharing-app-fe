@@ -13,14 +13,14 @@
     padding: 5px 10px;
     font-size: 16px;
     border: none;
-    background-color: #f5d39d;
+    background-color: #972ecc;
     border-radius: 10px;
     color: white;
     cursor: pointer;
   }
   
   .header-container button:hover {
-    background-color: #d7890a;
+    background-color: #d70a0a;
   }
 
   .logout-button {

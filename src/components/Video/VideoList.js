@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
 import './VideoList.css';
 
 function VideoList() {
@@ -9,20 +11,18 @@ function VideoList() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn'));
   const [isReloaded, setIsReloaded] = useState(false);
-  const videosPerPage = process.env.VIDEOS_PER_PAGE || 5;
+  const videosPerPage = process.env.REACT_APP_VIDEOS_PER_PAGE || 5;
 
   const [videoLink, setVideoLink] = useState('');
   const [videoDescription, setVideoDescription] = useState('');
+  const [videoTitle, setVideoTitle] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  const protocol = process.env.API_PROTOCOL;
-  const host = process.env.API_HOST;
-  const port = process.env.API_PORT;
-  const url = `${protocol}://${host}:${port}`;
+  const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {    
     let storedUserId = '';
@@ -56,76 +56,97 @@ function VideoList() {
     const fetchVideos = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`${url}/videos?page=${currentPage}&limit=${videosPerPage}`);
-        const data = await response.json();
-        setVideos(data);
+        const response = await axios.get(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}?page=${currentPage}&limit=${videosPerPage}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        setVideos(response.data);
       } catch (error) {
+        if (error.response) {
+          setErrorMessage(error.response.data.message);
+        } else {
+          setErrorMessage('An error occurred. Please try again.');
+        }
         setVideos([]);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     fetchVideos();
   }, [currentPage, isLoggedIn, isReloaded]);
 
   const handleShare = async () => {
-    const response = await fetch(`${url}/videos`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ sharer: userId, url: videoLink, description: videoDescription }),
-    });
-
-    if (response.ok) {
+    try {
+      await axios.post(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}`, {
+        sharer: userId,
+        url: videoLink,
+        title: videoTitle,
+        description: videoDescription
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
       setVideoLink('');
+      setVideoTitle('');
       setVideoDescription('');
       setSuccessMessage('Video shared successfully!');
       setErrorMessage('');
       setCurrentPage(1);
       setIsReloaded(prevState => !prevState);
-    } else {
-      const errorData = await response.json();
-      setErrorMessage(errorData.message);
+    } catch (error) {
+      if (error.response) {
+        setErrorMessage(error.response.data);
+      } else {
+        setErrorMessage('An error occurred. Please try again.');
+      }
     }
   };
 
   async function handleEdit(id, newUrl, newTitle, newDescription) {
-    const response = await fetch(`${url}/videos/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
+    try {
+      const response = await axios.put(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}/${id}`, {
         url: newUrl,
         title: newTitle,
         description: newDescription,
-      }),
-    });
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
   
-    return response;
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        setErrorMessage(error.response.data);
+      } else {
+        setErrorMessage('An error occurred. Please try again.');
+      }
+    }
   }
   
   async function handleDelete(id) {
     try {
-      const response = await fetch(`${url}/videos/${id}`, {
-        method: 'DELETE',
+      await axios.delete(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}/${id}`, {
         headers: {
           'Authorization': `Bearer ${token}`
-        },
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        setErrorMessage(errorData.message);
-      }
-
+  
       setVideos(videos.filter(video => video.id !== id));
+      setSuccessMessage('Video deleted successfully!');
       setIsReloaded(prevState => !prevState);
     } catch (error) {
-      alert('An error occurred while deleting the video. Please try again.');
+      if (error.response) {
+        setErrorMessage(error.response.data);
+      } else {
+        setErrorMessage('An error occurred while deleting the video. Please try again.');
+      }
     }
   }
 
@@ -156,6 +177,12 @@ function VideoList() {
         />
         <input
           type="text"
+          value={videoTitle}
+          onChange={(e) => setVideoTitle(e.target.value)}
+          placeholder="Enter video title"
+        />
+        <input
+          type="text"
           value={videoDescription}
           onChange={e => setVideoDescription(e.target.value)}
           placeholder="Enter video description here"
@@ -163,9 +190,20 @@ function VideoList() {
         <button onClick={handleShare}>Share</button>
       </div>
       {successMessage && <div className="success-message">{successMessage}</div>}
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      {successMessage && (
+          <div className="success-notification">
+            {successMessage}
+            <button onClick={() => setSuccessMessage(null)}>X</button>
+          </div>
+        )}
+      {errorMessage && (
+          <div className="error-notification">
+            {errorMessage}
+            <button onClick={() => setErrorMessage(null)}>X</button>
+          </div>
+        )}
       {videos.map((video) => (
-        <VideoItem key={video.id} video={video} userId={userId} />
+        <VideoItem key={video._id} video={video} userId={userId} />
     ))}
       <div className="pagination">
         <button onClick={handlePrevious}>Previous</button>
@@ -186,19 +224,15 @@ function VideoList() {
     };
   
     const handleSubmitClick = async () => {
-      try {
-        const response = await handleEdit(video.id, newUrl, newTitle, newDescription);
-        if (!response.ok) {
-          const errorData = await response.json();
-          setErrorMessage(errorData.message);
+      let updatingUrl = newUrl;
+      if (!newUrl) updatingUrl = `${process.env.REACT_APP_YOUTUBE_WATCH_URL}${video.youtubeId}`;
+        const response = await handleEdit(video._id, updatingUrl, newTitle, newDescription);
+        if (response) {
+          setSuccessMessage('Video updated successfully!');
+          setVideoLink('');
+          setIsEditing(false);
+          setIsReloaded(prevState => !prevState);
         }
-        const updatedVideo = await response.json();
-        setVideoLink(updatedVideo.url);
-        setIsEditing(false);
-        setIsReloaded(prevState => !prevState);
-      } catch (error) {
-        alert('An error occurred while updating the video. Please try again.');
-      }
     };
 
     const handleCancelClick = () => {
@@ -206,7 +240,7 @@ function VideoList() {
     };
   
     return (
-      <div className="video-item">
+      <div className="video-item" key={video._id}>
         {isEditing ? (
           <div>
             <input className="input-field" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="New Title"/>
@@ -223,15 +257,14 @@ function VideoList() {
             <iframe
               width="560"
               height="315"
-              src={`${process.env.YOUTUBE_EMBED_URL}/${video.youtubeId}`}
-              frameBorder="0"
+              src={`${process.env.REACT_APP_YOUTUBE_EMBED_URL}/${video.youtubeId}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>
             {userId === video.sharer._id && (
               <div>
                 <button className="button button-edit" onClick={handleEditClick}>Edit</button>
-                <button className="button button-delete" onClick={() => handleDelete(video.id)}>Delete</button>
+                <button className="button button-delete" onClick={() => handleDelete(video._id)}>Delete</button>
               </div>
             )}
           </div>
