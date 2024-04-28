@@ -46,6 +46,7 @@
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-react": "^7.24.1",
     "babel-jest": "^29.7.0",
+    "jwt-decode": "^4.0.0",
     "msw": "^2.2.14"
   },
   "jest": {
@@ -53,7 +54,11 @@
       "^.+\\.jsx?$": "babel-jest"
     },
     "transformIgnorePatterns": [
-      "/node_modules/(?!(@bundled-es-modules/cookie|@bundled-es-modules/statuses))"
-    ]
+      "node_modules/(?!axios)"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less)$": "<rootDir>/__mocks__/styleMock.js"
+    },
+    "testEnvironment": "jsdom"
   }
 }

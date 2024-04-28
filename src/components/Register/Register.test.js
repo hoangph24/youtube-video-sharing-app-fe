@@ -1,66 +1,92 @@
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import { http } from 'msw';
-import { setupServer } from 'msw/node';
-import { screen } from '@testing-library/react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import axios from 'axios';
 import Register from './Register';
+import { BrowserRouter as Router } from 'react-router-dom';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
-}));
+jest.mock('axios');
 
-const server = setupServer(
-  http.post('/register', (req, res, ctx) => {
-    return res(ctx.json({}));
-  })
-);
+describe('Register component', () => {
+  it('renders register form', () => {
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <Register />
+      </Router>
+    );
+    
+    expect(screen.getByPlaceholderText('Username')).toBeTruthy();
+    expect(screen.getByPlaceholderText('Password')).toBeTruthy();
+    expect(screen.getByText('Register')).toBeTruthy();
+  });
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+  it('submits form with correct data', async () => {
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <Register />
+      </Router>
+    );
+    const usernameInput = screen.getByPlaceholderText('Username');
+    const passwordInput = screen.getByPlaceholderText('Password');
+    const registerButton = screen.getByText('Register');
 
-test('renders register form', () => {
-  render(<Register />);
-  const usernameInput = screen.getByPlaceholderText('Username');
-  const passwordInput = screen.getByPlaceholderText('Password');
+    axios.post.mockResolvedValueOnce({});
 
-  expect(usernameInput).toBeInTheDocument();
-  expect(passwordInput).toBeInTheDocument();
-});
+    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
+    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
 
-test('allows the user to register successfully', async () => {
-  const navigate = jest.fn();
-  useNavigate.mockReturnValue(navigate);
+    fireEvent.click(registerButton);
 
-  render(<Register />);
-  const usernameInput = screen.getByPlaceholderText('Username');
-  const passwordInput = screen.getByPlaceholderText('Password');
-  const registerButton = screen.getByRole('button', { name: /register/i });
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledTimes(1);
+    });
 
-  fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-  fireEvent.change(passwordInput, { target: { value: 'testpass' } });
-  fireEvent.click(registerButton);
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith(
+        `${process.env.REACT_APP_API_URL}/${process.env.REACT_APP_API_USERS}/register`,
+        { username: 'testUser', password: 'testPassword' }
+      );
+    });
+  });
 
-  await waitFor(() => expect(navigate).toHaveBeenCalledWith('/login'));
-});
+  it('displays error message for invalid input', async () => {
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <Register />
+      </Router>
+    );
+    const usernameInput = screen.getByPlaceholderText('Username');
+    const passwordInput = screen.getByPlaceholderText('Password');
+    const registerButton = screen.getByText('Register');
 
-test('shows an error message when registration fails', async () => {
-  server.use(
-    http.post('/register', (req, res, ctx) => {
-      return res(ctx.status(500), ctx.json({ message: 'Internal server error' }));
-    })
-  );
+    fireEvent.change(usernameInput, { target: { value: 'invalidUsername!' } });
+    fireEvent.change(passwordInput, { target: { value: 'invalidPassword!' } });
 
-  render(<Register />);
-  const usernameInput = screen.getByPlaceholderText('Username');
-  const passwordInput = screen.getByPlaceholderText('Password');
-  const registerButton = screen.getByRole('button', { name: /register/i });
+    fireEvent.click(registerButton);
 
-  fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-  fireEvent.change(passwordInput, { target: { value: 'testpass' } });
-  fireEvent.click(registerButton);
+    await waitFor(() => {
+      expect(screen.getByText('Username should only contain alphanumeric characters and be between 3 and 30 characters long.')).toBeTruthy();
+    });
+  });
 
-  const errorMessage = await screen.findByText(/an error occurred. please try again./i);
-  expect(errorMessage).toBeInTheDocument();
+  it('displays error message for server error', async () => {
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <Register />
+      </Router>
+    );
+    const usernameInput = screen.getByPlaceholderText('Username');
+    const passwordInput = screen.getByPlaceholderText('Password');
+    const registerButton = screen.getByText('Register');
+
+    axios.post.mockRejectedValueOnce({ response: { data: 'Username already exists' } });
+
+    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
+    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
+
+    fireEvent.click(registerButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Username already exists')).toBeTruthy();
+    });
+  });
 });

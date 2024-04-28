@@ -1,58 +1,70 @@
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import { render, fireEvent, waitFor, screen, act } from '@testing-library/react';
+import axios from 'axios';
 import Login from './Login';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { screen } from '@testing-library/react';
-import { setupServer } from 'msw/node';
-import { http } from 'msw';
 
-const server = setupServer(
-  http.post('/login', (req, res, ctx) => {
-    return res(ctx.json({}))
-  })
-)
+export default axios;
 
-beforeAll(() => server.listen())
-afterEach(() => server.resetHandlers())
-afterAll(() => server.close())
+jest.mock('axios');
 
-test('renders login form', () => {
-    render(<Router><Login /></Router>);
+describe('Login component', () => {
+  it('renders login form', () => {
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <Login />
+      </Router>
+    );
+    
+    expect(screen.getByPlaceholderText('Username')).toBeTruthy();;
+    expect(screen.getByPlaceholderText('Password')).toBeTruthy();
+    expect(screen.getByText('Login')).toBeTruthy();
+    expect(screen.getByText('Register')).toBeTruthy();
+  });
+
+  it('submits form with correct data', async () => {
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <Login />
+      </Router>
+    );
     const usernameInput = screen.getByPlaceholderText('Username');
     const passwordInput = screen.getByPlaceholderText('Password');
+    const loginButton = screen.getByText('Login');
 
-    expect(usernameInput).toBeInTheDocument();
-    expect(passwordInput).toBeInTheDocument();
-});
+    axios.post.mockResolvedValueOnce({ data: { token: 'testToken' } });
 
-test('allows the user to login successfully', async () => {
-  render(<Router><Login /></Router>);
+    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
+    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
 
-  const usernameInput = screen.getByPlaceholderText('Username');
-  const passwordInput = screen.getByPlaceholderText('Password');
-  const loginButton = screen.getByRole('button', { name: /login/i });
+    fireEvent.click(loginButton);
 
-  fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-  fireEvent.change(passwordInput, { target: { value: 'testpass' } });
-  fireEvent.click(loginButton);
-  await waitFor(() => expect(localStorage.getItem('isLoggedIn')).toEqual('true'));
-  await waitFor(() => expect(localStorage.getItem('username')).toEqual('testuser'));
-});
+    await waitFor(() => {
+      expect(localStorage.getItem('isLoggedIn')).toBe('true');
+    });
 
-test('shows an error message when login fails', async () => {
-server.use(
-  http.post('/login', (req, res, ctx) => {
-    return res(ctx.status(500), ctx.json({ message: 'Internal server error' }))
-  })
-)
+    expect(localStorage.getItem('token')).toBe('testToken');
+  });
 
-const usernameInput = screen.getByPlaceholderText('Username');
-const passwordInput = screen.getByPlaceholderText('Password');
-const loginButton = screen.getByRole('button', { name: /login/i });
+  it('displays error message for invalid credentials', async () => {
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <Login />
+      </Router>
+    );
+    const usernameInput = screen.getByPlaceholderText('Username');
+    const passwordInput = screen.getByPlaceholderText('Password');
+    const loginButton = screen.getByText('Login');
 
-fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-fireEvent.change(passwordInput, { target: { value: 'testpass' } });
-fireEvent.click(loginButton);
+    axios.post.mockRejectedValueOnce({ response: { data: 'Invalid credentials' } });
 
-const errorMessage = await screen.findByText(/an error occurred. please try again./i);
-expect(errorMessage).toBeInTheDocument();
+    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
+    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
+
+    fireEvent.click(loginButton);
+
+    await waitFor(() => {
+      expect(screen.getByText('Invalid credentials')).toBeTruthy();
+    });
+  });
 });

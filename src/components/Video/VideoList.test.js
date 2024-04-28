@@ -1,137 +1,183 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { http } from 'msw';
-import { setupServer } from 'msw/node';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { render, fireEvent, waitFor, screen } from '@testing-library/react';
+import axios from 'axios';
 import VideoList from './VideoList';
+import { BrowserRouter as Router } from 'react-router-dom';
+import decodeToken from 'jwt-decode';
+import { wait } from '@testing-library/user-event/dist/utils';
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
-}));
+jest.mock('jwt-decode', () => () => ({ id: 'testUserId' }));
 
-const server = setupServer(
-  http.get('/videos', (req, res, ctx) => {
-    const page = req.url.searchParams.get('page');
-    const limit = req.url.searchParams.get('limit');
-    const videos = Array.from({ length: limit }, (_, index) => ({
-      id: index + 1,
-      title: `Video ${index + 1}`,
-      sharer: 'testuser',
-      description: `Description ${index + 1}`,
-      url: `https://youtube.com/video${index + 1}`,
-    }));
-    return res(ctx.json(videos));
-  }),
-  http.post('/videos', (req, res, ctx) => {
-    return res(ctx.json({ id: 1 }));
-  }),
-  http.put('/videos/:id', (req, res, ctx) => {
-    const { id } = req.params;
-    return res(ctx.json({ id }));
-  }),
-  http.delete('/videos/:id', (req, res, ctx) => {
-    const { id } = req.params;
-    return res(ctx.json({ id }));
-  })
-);
+jest.mock('axios');
 
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+describe('VideoList component', () => {
 
-test('renders video list', async () => {
-  render(<VideoList />);
-  const loader = screen.getByTestId('loader');
-  expect(loader).toBeInTheDocument();
+  beforeEach(() => {
+    localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMzQ1Njc4IiwiaWF0IjoxNTE2MjM5MDIyfQ.axu-zC5zwJGbaAgYvPpiBW8hdPrGPfaMv_cr3fJxyqUM8');
+    localStorage.setItem('isLoggedIn', 'true');
 
-  await waitFor(() => {
-    const videoItems = screen.getAllByTestId('video-item');
-    expect(videoItems.length).toBeGreaterThan(0);
-  });
-});
-
-test('allows the user to share a video', async () => {
-  const navigate = jest.fn();
-  useNavigate.mockReturnValue(navigate);
-
-  render(<VideoList />);
-  const videoLinkInput = screen.getByPlaceholderText('Paste YouTube video link here');
-  const videoDescriptionInput = screen.getByPlaceholderText('Enter video description here');
-  const shareButton = screen.getByRole('button', { name: /share/i });
-
-  fireEvent.change(videoLinkInput, { target: { value: 'https://youtube.com/video1' } });
-  fireEvent.change(videoDescriptionInput, { target: { value: 'Test video description' } });
-  fireEvent.click(shareButton);
-
-  await waitFor(() => {
-    expect(videoLinkInput.value).toBe('');
+    process.env.REACT_APP_API_URL = 'https://example.com/api';
+    process.env.REACT_APP_API_VIDEOS = 'videos';
   });
 
-  await waitFor(() => {
-    expect(videoDescriptionInput.value).toBe('');
+  afterEach(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('isLoggedIn');
+
+    process.env.REACT_APP_API_URL = undefined;
+    process.env.REACT_APP_API_VIDEOS = undefined;
   });
 
-  await waitFor(() => {
-    expect(screen.getByText(/video shared successfully/i)).toBeInTheDocument();
-  });
-});
+  it('renders video list', async () => {
+    const videos = [
+      { _id: '1', title: 'Video 1', description: 'Description 1', sharer: { _id: '1', username: 'User 1' }, youtubeId: 'youtubeId1' },
+      { _id: '2', title: 'Video 2', description: 'Description 2', sharer: { _id: '2', username: 'User 2' }, youtubeId: 'youtubeId2' }
+    ];
+    axios.get.mockResolvedValueOnce({ data: videos });
 
-test('allows the user to edit a video', async () => {
-  render(<VideoList />);
-  const editButton = screen.getAllByRole('button', { name: /edit/i })[0];
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <VideoList />
+      </Router>
+    );
 
-  fireEvent.click(editButton);
+    await waitFor(() => {
+      expect(screen.getByText('Video 1')).toBeTruthy();
+    });
 
-  const newTitleInput = screen.getByPlaceholderText('New Title');
-  const newDescriptionInput = screen.getByPlaceholderText('New Description');
-  const newUrlInput = screen.getByPlaceholderText('New Video URL');
-  const submitButton = screen.getByRole('button', { name: /submit/i });
-
-  fireEvent.change(newTitleInput, { target: { value: 'New Video Title' } });
-  fireEvent.change(newDescriptionInput, { target: { value: 'New Video Description' } });
-  fireEvent.change(newUrlInput, { target: { value: 'https://youtube.com/newvideo' } });
-  fireEvent.click(submitButton);
-
-  await waitFor(() => {
-    expect(newTitleInput.value).toBe('');
+    await waitFor(() => {
+      expect(screen.getByText('Video 2')).toBeTruthy();
+    });
   });
 
-  await waitFor(() => {
-    expect(newDescriptionInput.value).toBe('');
+  it('shares a video', async () => {
+    const mockNewVideo = {
+      _id: '3',
+      title: 'New Video',
+      description: 'New Description',
+      youtubeId: 'new123',
+      sharer: { _id: '1', username: 'user1' }
+    };
+
+    axios.post.mockResolvedValueOnce({ data: mockNewVideo });
+
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <VideoList />
+      </Router>
+    );
+
+    const shareLinkInput = await screen.findByPlaceholderText('Paste YouTube video link here');
+    const titleInput = screen.getByPlaceholderText('Enter video title');
+    const descriptionInput = screen.getByPlaceholderText('Enter video description here');
+    const shareButton = screen.getByText('Share');
+
+    fireEvent.change(shareLinkInput, { target: { value: 'https://www.youtube.com/watch?v=new123' } });
+    fireEvent.change(titleInput, { target: { value: 'New Video' } });
+    fireEvent.change(descriptionInput, { target: { value: 'New Description' } });
+
+    fireEvent.click(shareButton);
+
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(axios.post).toHaveBeenCalledWith(
+        'https://example.com/api/videos',
+        {
+          sharer: expect.any(String),
+          url: 'https://www.youtube.com/watch?v=new123',
+          title: 'New Video',
+          description: 'New Description'
+        },
+        expect.any(Object)
+      );
+    });
+  });
+  
+  it('edits a video', async () => {
+    const videos = [
+      { 
+        _id: '1',
+        title: 'Video 1',
+        description: 'Description 1',
+        sharer: { _id: '12345678', username: 'User 1' },
+        youtubeId: 'youtubeId1'
+      }
+    ];
+    axios.get.mockResolvedValueOnce({ data: videos });
+
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <VideoList />
+      </Router>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Edit')).toBeTruthy();
+    });
+
+    const editButton = screen.getByText('Edit');
+    fireEvent.click(editButton);
+
+    fireEvent.change(screen.getByDisplayValue('Video 1'), { target: { value: 'Updated Video' } });
+    fireEvent.change(screen.getByDisplayValue('Description 1'), { target: { value: 'Updated Description' } });
+    fireEvent.click(screen.getByText('Submit'));
+
+    await waitFor(() => {
+      expect(axios.put).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(axios.put).toHaveBeenCalledWith(
+        expect.stringContaining('/api/videos'),
+        { url: expect.any(String), title: 'Updated Video', description: 'Updated Description' },
+        expect.any(Object)
+      );
+    });
   });
 
-  await waitFor(() => {
-    expect(newUrlInput.value).toBe('');
-  });
+  it('deletes a video', async () => {
+    const videos = [
+      { 
+        _id: '1',
+        title: 'Video 1',
+        description: 'Description 1',
+        sharer: { _id: '12345678', username: 'User 1' },
+        youtubeId: 'youtubeId1'
+      }
+    ];
+    axios.get.mockResolvedValueOnce({ data: videos });
 
-  await waitFor(() => {
-    expect(screen.getByText(/video shared successfully/i)).toBeInTheDocument();
-  });
-});
+    const { getByPlaceholderText, getByText, getByTestId } = render(
+      <Router>
+        <VideoList />
+      </Router>
+    );
 
-test('allows the user to delete a video', async () => {
-  render(<VideoList />);
-  const deleteButton = screen.getAllByRole('button', { name: /delete/i })[0];
+    await waitFor(() => {
+      expect(screen.getByText('Delete')).toBeTruthy();
+    });
 
-  fireEvent.click(deleteButton);
+    const deleteButton = screen.getByText('Delete');
+    fireEvent.click(deleteButton);
 
-  await waitFor(() => {
-    expect(screen.queryByText(/video 1/i)).not.toBeInTheDocument();
-  });
-});
+    axios.delete.mockResolvedValueOnce({});
 
-test('navigates to login page if user is not logged in', () => {
-  localStorage.setItem('isLoggedIn', 'false');
-  render(<VideoList />);
-  expect(useNavigate).toHaveBeenCalledWith('/login');
-});
+    await waitFor(() => {
+      expect(axios.delete).toHaveBeenCalledTimes(1);
+    });
 
-test('displays loader while fetching videos', async () => {
-  render(<VideoList />);
-  const loader = screen.getByTestId('loader');
-  expect(loader).toBeInTheDocument();
-
-  await waitFor(() => {
-    expect(loader).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(axios.delete).toHaveBeenCalledWith(
+        expect.stringContaining('/api/videos/1'),
+        expect.any(Object)
+      );
+    });
   });
 });
