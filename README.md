@@ -1,43 +1,38 @@
-# Youtube Videos Sharing FE
+# YouTube Video Sharing App
 
-A web app for sharing YouTube videos.
+## Introduction
+This is a React-based application that allows users to share and view YouTube videos. Key features include user authentication, video uploading, and a comment section for each video.
 
-## Getting Started
+## Prerequisites
+- Node.js (v20 or later)
+- npm (v6 or later)
+- Docker (v20.10 or later)
+- MongoDB Atlas account
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+## Installation & Configuration
+1. Clone the repository: `git clone https://github.com/yourusername/youtube-video-sharing-app-fe.git`
+2. Navigate to the project directory: `cd youtube-video-sharing-app-fe`
+3. Install dependencies: `npm install`
 
-### Prerequisites
+## Database Setup
+This application uses MongoDB Atlas for database services. To set up, follow these steps:
+1. Create a new cluster in the [MongoDB Atlas console](https://cloud.mongodb.com/).
+2. Navigate to the database access and create a new database user.
+3. Under network access, add a new IP address. For development, you can allow access from anywhere.
+4. Click on 'Connect', select 'Connect your application', copy the connection string and replace `<password>` with your database user password.
+5. Create a `.env` file in the root directory and paste the connection string as the value for `REACT_APP_API_URL`.
 
-What things you need to install the software and how to install them.
-```bash
-choco install nodejs-lts --version="20.12.2"
-```
+## Running the Application
+1. Start the development server: `npm start`
+2. Access the application in a web browser at `http://localhost:3000`
+3. Run the test suite: `npm test`
 
-### Installation
+## Docker Deployment
+1. Build the Docker image: `docker build -t youtube-video-sharing-app-fe .`
+2. Run the Docker container: `docker run -p 3000:3000 -d youtube-video-sharing-app-fe`
 
-A step by step series of examples that tell you how to get a development environment running.
+## Usage
+Once logged in, users can share videos through the 'Share' button. Users can edit or delete videos they have shared. Each time it is successfully shared, a notification will be sent to the remaining users.
 
-1. Clone the repo
-[git clone https://github.com/hoangph24/youtube-video-sharing-app-fe.git](https://github.com/hoangph24/youtube-video-sharing-app-fe.git)
-
-2. Install NPM packages
-```bash
-npm install
-```
-
-### Usage
-
-#### Explain how to run app
-```bash
-npm start
-```
-Access `http:\\localhost:3000 on your browser
-
-#### Explain how to run the automated tests for this system.
-```bash
-npm run test
-```
-
-### Contributing
-
-### License
+## Troubleshooting
+If you encounter issues during setup, ensure that all prerequisites are correctly installed and that the MongoDB configuration details are correctly entered in the `.env` file.
