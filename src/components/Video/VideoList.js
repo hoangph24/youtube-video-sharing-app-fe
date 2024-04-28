@@ -107,6 +107,28 @@ function VideoList() {
     }
   };
 
+  const handleMyVideos = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(`/videos/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      setVideos(response.data);
+    } catch (error) {
+      if (error.response) {
+        setErrorMessage(error.response.data);
+      } else {
+        setErrorMessage('An error occurred. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
   async function handleEdit(id, newUrl, newTitle, newDescription) {
     try {
       const response = await axios.put(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}/${id}`, {
@@ -188,6 +210,7 @@ function VideoList() {
           placeholder="Enter video description here"
         />
         <button onClick={handleShare}>Share</button>
+        <button onClick={handleMyVideos}>My Videos</button>
       </div>
       {successMessage && <div className="success-message">{successMessage}</div>}
       {successMessage && (

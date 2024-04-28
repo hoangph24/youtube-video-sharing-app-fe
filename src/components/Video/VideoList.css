@@ -82,6 +82,7 @@
     justify-content: center;
     margin-bottom: 20px;
     margin-top: 10px;
+    align-items: center;
   }
   
   .share-video input {
@@ -102,10 +103,14 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-right: 10px;
   }
   
   .share-video button:hover {
     background-color: #e271b3fd;
+  }
+  .share-video button:last-child {
+    margin-right: 0;
   }
 
   .success-notification {
