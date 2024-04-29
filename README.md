@@ -1,7 +1,7 @@
 # YouTube Video Sharing App
 
 ## Introduction
-This is a React-based application that allows users to share and view YouTube videos. Key features include user authentication, video uploading, and a comment section for each video.
+This is a React-based application that allows users to share and view YouTube videos. Key features include user authentication, video uploading, and management for each video.
 
 ## Prerequisites
 - Node.js (v20 or later)

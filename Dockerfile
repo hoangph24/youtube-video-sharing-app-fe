@@ -8,8 +8,6 @@ COPY package*.json /youtube-video-sharing-app-fe/
 
 RUN npm install
 
-COPY . .
-
 EXPOSE 3000
 
 CMD ["npm", "start"]

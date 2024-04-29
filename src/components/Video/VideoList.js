@@ -110,7 +110,7 @@ function VideoList() {
   const handleMyVideos = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(`/videos/${userId}`, {
+      const response = await axios.get(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}/my-videos`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
