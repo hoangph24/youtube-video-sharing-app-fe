@@ -1,6 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { socket } from '../../socket';
+
 function Header() {
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('isLoggedIn');
@@ -8,6 +10,7 @@ function Header() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('isLoggedIn');
+    socket.disconnect();
     navigate('/login');
   };
 

@@ -13,6 +13,7 @@
     "react-router-dom": "^6.23.0",
     "react-scripts": "5.0.1",
     "react-toastify": "^10.0.5",
+    "socket.io-client": "^4.7.5",
     "util": "^0.12.5",
     "web-vitals": "^2.1.4"
   },
@@ -40,7 +41,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://10.30.10.66:3000",
   "devDependencies": {
     "@babel/core": "^7.24.4",
     "@babel/preset-env": "^7.24.4",

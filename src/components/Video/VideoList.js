@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import './VideoList.css';
+import { socket } from '../../socket';
 
 function VideoList() {
+
   const [userId, setUserId] = useState('');
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,9 +81,23 @@ function VideoList() {
     fetchVideos();
   }, [currentPage, isLoggedIn, isReloaded]);
 
+  useEffect(() => {
+    socket.connect();
+    const handleNewVideo = (data) => {
+      if (data.message.userId !== userId) {
+        toast.success(data.message.content);
+      }
+    };
+    socket.on('newVideo', handleNewVideo);
+  
+    return () => {
+      socket.off('newVideo', handleNewVideo);
+    };
+  }, []);
+
   const handleShare = async () => {
     try {
-      await axios.post(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}`, {
+      const response = await axios.post(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}`, {
         sharer: userId,
         url: videoLink,
         title: videoTitle,
@@ -90,14 +108,16 @@ function VideoList() {
           'Authorization': `Bearer ${token}`
         }
       });
-  
+      
       setVideoLink('');
       setVideoTitle('');
       setVideoDescription('');
       setSuccessMessage('Video shared successfully!');
       setErrorMessage('');
       setCurrentPage(1);
-      setIsReloaded(prevState => !prevState);
+
+      videos.unshift(response.data);
+      setVideos(videos);
     } catch (error) {
       if (error.response) {
         setErrorMessage(error.response.data);
@@ -212,7 +232,6 @@ function VideoList() {
         <button onClick={handleShare}>Share</button>
         <button onClick={handleMyVideos}>My Videos</button>
       </div>
-      {successMessage && <div className="success-message">{successMessage}</div>}
       {successMessage && (
           <div className="success-notification">
             {successMessage}
@@ -233,6 +252,7 @@ function VideoList() {
         <span>Page {currentPage}</span>
         <button onClick={handleNext}>Next</button>
       </div>
+      <ToastContainer />
     </div>
   );
 

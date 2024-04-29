@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+
 import Login from './components/Login/Login';
 import Register from './components/Register/Register';
 import Video from './components/Video/VideoList';
@@ -23,9 +24,9 @@ function Redirect() {
 }
 
 function App() {
+
   return (
     <div>
-      
       <Router>
       <Header/>
         <Routes>
