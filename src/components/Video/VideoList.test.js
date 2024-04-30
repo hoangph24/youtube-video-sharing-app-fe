@@ -15,6 +15,7 @@ describe('VideoList component', () => {
   beforeEach(() => {
     localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMzQ1Njc4IiwiaWF0IjoxNTE2MjM5MDIyfQ.axu-zC5zwJGbaAgYvPpiBW8hdPrGPfaMv_cr3fJxyqUM8');
     localStorage.setItem('isLoggedIn', 'true');
+    localStorage.setItem('userId', '12345678')
 
     process.env.REACT_APP_API_URL = 'https://example.com/api';
     process.env.REACT_APP_API_VIDEOS = 'videos';
