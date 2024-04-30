@@ -25,6 +25,9 @@ function Login() {
 
       localStorage.setItem('isLoggedIn', 'true');
       localStorage.setItem('token', response.data.token);
+
+      const decodedToken = decodeToken(response.data.token);
+      localStorage.setItem('userId', decodedToken.id);
       navigate('/videos');
     } catch (error) {
       if (error.response) {
@@ -36,6 +39,21 @@ function Login() {
       setIsLoading(false);
     }
   };
+
+  const decodeToken = (token) => {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+  
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error("Invalid token", error);
+      return null;
+    }
+  }
 
   return (
     <div className="login-container">

@@ -9,7 +9,7 @@ import { socket } from '../../socket';
 
 function VideoList() {
 
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState(localStorage.getItem('userId'));
   const [videos, setVideos] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,35 +28,8 @@ function VideoList() {
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
-  useEffect(() => {    
-    let storedUserId = '';
-
-    if (token) {
-      const decodedToken = decodeToken(token);
-      storedUserId = decodedToken.id;
-      if(storedUserId) {
-        setIsLoggedIn(true);
-      }
-    }
-    setUserId(storedUserId);
-  }, [token]);
-
-  function decodeToken(token) {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-  
-      return JSON.parse(jsonPayload);
-    } catch (error) {
-      console.error("Invalid token", error);
-      return null;
-    }
-  }
-
   useEffect(() => {
+
     const fetchVideos = async () => {
       setIsLoading(true);
       try {
@@ -78,7 +51,7 @@ function VideoList() {
       }
     };
 
-    fetchVideos();
+  fetchVideos();
   }, [currentPage, isLoggedIn, isReloaded]);
 
   useEffect(() => {
