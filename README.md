@@ -32,7 +32,7 @@ This application uses MongoDB Atlas for database services. To set up, follow the
 2. Run the Docker container: `docker run -p 3000:3000 -d youtube-video-sharing-app-fe`
 
 ## Usage
-Once logged in, users can share videos through the 'Share' button. Users can edit or delete videos they have shared. Each time it is successfully shared, a notification will be sent to the remaining users.
+Once logged in, users can share videos through the 'Share' button. Users can edit or delete videos they have shared. Each time it is successfully shared, a notification will be sent to the remaining users (all users will receive a notification about a new share, except the sharer).
 
 ## Troubleshooting
 If you encounter issues during setup, ensure that all prerequisites are correctly installed and that the MongoDB configuration details are correctly entered in the `.env` file.
