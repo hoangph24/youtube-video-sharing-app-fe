@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import './VideoList.css';
 import { socket } from '../../socket';
+import CONSTANTS from '../../constants/common';
 
 function VideoList() {
 
@@ -15,7 +16,7 @@ function VideoList() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn'));
   const [isReloaded, setIsReloaded] = useState(false);
-  const videosPerPage = process.env.REACT_APP_VIDEOS_PER_PAGE || 5;
+  const videosPerPage = CONSTANTS.VIDEOS_PER_PAGE || 5;
 
   const [videoLink, setVideoLink] = useState('');
   const [videoDescription, setVideoDescription] = useState('');
@@ -241,7 +242,7 @@ function VideoList() {
   
     const handleSubmitClick = async () => {
       let updatingUrl = newUrl;
-      if (!newUrl) updatingUrl = `${process.env.REACT_APP_YOUTUBE_WATCH_URL}${video.youtubeId}`;
+      if (!newUrl) updatingUrl = `${CONSTANTS.YOUTUBE_WATCH_URL}${video.youtubeId}`;
         const response = await handleEdit(video._id, updatingUrl, newTitle, newDescription);
         if (response) {
           setSuccessMessage('Video updated successfully!');
@@ -273,7 +274,7 @@ function VideoList() {
             <iframe
               width="560"
               height="315"
-              src={`${process.env.REACT_APP_YOUTUBE_EMBED_URL}/${video.youtubeId}`}
+              src={`${CONSTANTS.YOUTUBE_EMBED_URL}/${video.youtubeId}`}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             ></iframe>

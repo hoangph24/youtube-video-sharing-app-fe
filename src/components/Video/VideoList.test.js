@@ -3,8 +3,6 @@ import { render, fireEvent, waitFor, screen } from '@testing-library/react';
 import axios from 'axios';
 import VideoList from './VideoList';
 import { BrowserRouter as Router } from 'react-router-dom';
-import decodeToken from 'jwt-decode';
-import { wait } from '@testing-library/user-event/dist/utils';
 
 jest.mock('jwt-decode', () => () => ({ id: 'testUserId' }));
 
