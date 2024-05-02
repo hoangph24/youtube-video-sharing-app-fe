@@ -8,7 +8,7 @@ jest.mock('axios');
 
 describe('Register component', () => {
   it('renders register form', () => {
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <Register />
       </Router>
@@ -20,7 +20,7 @@ describe('Register component', () => {
   });
 
   it('submits form with correct data', async () => {
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <Register />
       </Router>
@@ -31,8 +31,8 @@ describe('Register component', () => {
 
     axios.post.mockResolvedValueOnce({});
 
-    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
-    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
+    fireEvent.change(usernameInput, { target: { value: 'testUser@gmail.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'test@Password' } });
 
     fireEvent.click(registerButton);
 
@@ -43,13 +43,13 @@ describe('Register component', () => {
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
         `${process.env.REACT_APP_API_URL}/${process.env.REACT_APP_API_USERS}/register`,
-        { username: 'testUser', password: 'testPassword' }
+        { username: 'testUser@gmail.com', password: 'test@Password' }
       );
     });
   });
 
   it('displays error message for invalid input', async () => {
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <Register />
       </Router>
@@ -59,17 +59,17 @@ describe('Register component', () => {
     const registerButton = screen.getByText('Register');
 
     fireEvent.change(usernameInput, { target: { value: 'invalidUsername!' } });
-    fireEvent.change(passwordInput, { target: { value: 'invalidPassword!' } });
+    fireEvent.change(passwordInput, { target: { value: 'invalidPassword' } });
 
     fireEvent.click(registerButton);
 
     await waitFor(() => {
-      expect(screen.getByText('Username should only contain alphanumeric characters and be between 3 and 30 characters long.')).toBeTruthy();
+      expect(screen.getByText('Username should be a valid email address.')).toBeTruthy();
     });
   });
 
   it('displays error message for server error', async () => {
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <Register />
       </Router>
@@ -80,8 +80,8 @@ describe('Register component', () => {
 
     axios.post.mockRejectedValueOnce({ response: { data: 'Username already exists' } });
 
-    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
-    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
+    fireEvent.change(usernameInput, { target: { value: 'testUser@gmail.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'test@Password' } });
 
     fireEvent.click(registerButton);
 

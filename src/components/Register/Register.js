@@ -15,19 +15,19 @@ function Register() {
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const validateInput = (username, password) => {
-    const usernameRegex = /^[a-zA-Z0-9]{3,30}$/;
-    const passwordRegex = /^[a-zA-Z0-9]{8,15}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[a-zA-Z0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{8,15}$/;
   
     if (!username || !password) {
       return 'Username and password are required.';
     }
   
-    if (!usernameRegex.test(username)) {
-      return 'Username should only contain alphanumeric characters and be between 3 and 30 characters long.';
+    if (!emailRegex.test(username)) {
+      return 'Username should be a valid email address.';
     }
   
     if (!passwordRegex.test(password)) {
-      return 'Password should only contain alphanumeric characters and be between 8 and 15 characters long.';
+      return 'Password should be 8-15 characters long and contain at least one letter, one number and one special character.';
     }
   
     return null;
@@ -73,6 +73,7 @@ function Register() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
+          title="Username should be a valid email address."
         />
         <input
           type="password"
@@ -80,6 +81,7 @@ function Register() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          title="Password should be 8-15 characters long and contain at least one letter, one number and one special character."
         />
         {isLoading ? <div className="loading"></div> : <button type="submit" disabled={!username || !password}>Register</button>}
         {error && (

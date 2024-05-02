@@ -34,7 +34,7 @@ describe('VideoList component', () => {
     ];
     axios.get.mockResolvedValueOnce({ data: videos });
 
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <VideoList />
       </Router>
@@ -60,7 +60,7 @@ describe('VideoList component', () => {
 
     axios.post.mockResolvedValueOnce({ data: mockNewVideo });
 
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <VideoList />
       </Router>
@@ -111,7 +111,7 @@ describe('VideoList component', () => {
     ];
     axios.get.mockResolvedValueOnce({ data: videos });
 
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <VideoList />
       </Router>
@@ -153,7 +153,7 @@ describe('VideoList component', () => {
     ];
     axios.get.mockResolvedValueOnce({ data: videos });
 
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <VideoList />
       </Router>

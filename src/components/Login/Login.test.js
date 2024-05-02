@@ -10,7 +10,7 @@ jest.mock('axios');
 
 describe('Login component', () => {
   it('renders login form', () => {
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <Login />
       </Router>
@@ -23,7 +23,7 @@ describe('Login component', () => {
   });
 
   it('submits form with correct data', async () => {
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <Login />
       </Router>
@@ -34,8 +34,8 @@ describe('Login component', () => {
 
     axios.post.mockResolvedValueOnce({ data: { token: 'testToken' } });
 
-    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
-    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
+    fireEvent.change(usernameInput, { target: { value: 'testUser@gmail.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'test@Password' } });
 
     fireEvent.click(loginButton);
 
@@ -47,7 +47,7 @@ describe('Login component', () => {
   });
 
   it('displays error message for invalid credentials', async () => {
-    const { getByPlaceholderText, getByText, getByTestId } = render(
+    render(
       <Router>
         <Login />
       </Router>
@@ -58,8 +58,8 @@ describe('Login component', () => {
 
     axios.post.mockRejectedValueOnce({ response: { data: 'Invalid credentials' } });
 
-    fireEvent.change(usernameInput, { target: { value: 'testUser' } });
-    fireEvent.change(passwordInput, { target: { value: 'testPassword' } });
+    fireEvent.change(usernameInput, { target: { value: 'testUser@gmail.com' } });
+    fireEvent.change(passwordInput, { target: { value: 'test@Password' } });
 
     fireEvent.click(loginButton);
 
