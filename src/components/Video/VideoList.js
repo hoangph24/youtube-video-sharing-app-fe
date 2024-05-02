@@ -218,9 +218,15 @@ function VideoList() {
             <button onClick={() => setErrorMessage(null)}>X</button>
           </div>
         )}
-      {videos.map((video) => (
-        <VideoItem key={video._id} video={video} userId={userId} />
-    ))}
+      {
+        videos.length > 0 ? (
+          videos.map((video) => (
+            <VideoItem key={video._id} video={video} userId={userId} />
+          ))
+        ) : (
+          <p>No videos available!</p>
+        )
+      }
       <div className="pagination">
         <button onClick={handlePrevious}>Previous</button>
         <span>Page {currentPage}</span>
