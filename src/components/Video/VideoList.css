@@ -166,6 +166,10 @@
     font-size: 16px;
   }
 
+  .video-container {
+    position: relative;
+  }
+
   .share-video input {
     flex: 0.4;
     padding: 10px;
@@ -206,4 +210,66 @@
     border: 2px solid #ccc;
     border-radius: 4px;
     background-color: #f8f8f8;
+  }
+
+  .form-comment {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 500px;
+    margin-top: 10px;
+  }
+  
+  .form-comment label {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .form-comment input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    margin-left: 10px;
+    width: 100%;
+  }
+  
+  .form-comment input[type="submit"] {
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    max-width: 100px;
+    width: 100%;
+  }
+  
+  .form-comment input[type="submit"]:hover {
+    background-color: #45a049;
+  }
+
+  .button-liked {
+    background-color: #f84a4a;
+    color: #000000;
+    display: flex;
+    flex-direction: column;
+    width: 10%;
+    max-width: 100px;
+    margin-top: 10px;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .button-unliked {
+    background-color: #7da2f1;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    width: 10%;
+    max-width: 100px;
+    margin-top: 10px;
+    justify-content: center;
+    align-items: center;
   }

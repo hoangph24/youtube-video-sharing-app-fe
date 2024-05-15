@@ -30,7 +30,6 @@ function VideoList() {
   const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
-
     const fetchVideos = async () => {
       setIsLoading(true);
       try {
@@ -39,7 +38,14 @@ function VideoList() {
             'Authorization': `Bearer ${token}`
           }
         });
-        setVideos(response.data);
+        const mappedVideos = response.data.map((video) => {
+          return {
+            ...video._doc,
+            numberOfLikes: video.likes
+          };
+        });
+        console.log('mappedVideos :>> ', mappedVideos);
+        setVideos(mappedVideos);
       } catch (error) {
         if (error.response) {
           setErrorMessage(error.response.data.message);
@@ -109,8 +115,13 @@ function VideoList() {
           'Authorization': `Bearer ${token}`
         }
       });
-
-      setVideos(response.data);
+      const mappedMyVideos = response.data.map((video) => {
+        return {
+          ...video._doc,
+          numberOfLikes: video.likes
+        };
+      });
+      setVideos(mappedMyVideos);
     } catch (error) {
       if (error.response) {
         setErrorMessage(error.response.data);
@@ -122,7 +133,6 @@ function VideoList() {
     }
   };
   
-
   async function handleEdit(id, newUrl, newTitle, newDescription) {
     try {
       const response = await axios.put(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}/${id}`, {
@@ -172,6 +182,56 @@ function VideoList() {
 
   const handleNext = () => {
     setCurrentPage((oldPage) => oldPage + 1);
+  };
+
+  const handleCommentSubmit = async (event, id) => {
+    event.preventDefault();
+    const comment = event.target.elements.commentInput.value;
+    try {
+      const response = await axios.post(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}/${id}/comments`, {
+        content: comment
+      }, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setVideos(videos.map((v) => {
+        if (v._id === id) {
+          v.comments = response.data.comments;
+        }
+        return v;
+      }));
+    } catch (error) {
+      if (error.response) {
+        setErrorMessage(error.response.data);
+      } else {
+        setErrorMessage('An error occurred while add comment to the video. Please try again.');
+      }
+    }
+  };
+
+  const handleLike = async (id, isLiked) => {
+    const isLike = !isLiked;
+    try {
+      const response = await axios.put(`${apiUrl}/${process.env.REACT_APP_API_VIDEOS}/${id}/likes${isLike ? `?isLike=${isLike}` : '?isLike'}`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setVideos(videos.map((v) => {
+        if (v._id === id) {
+          v.likes = response.data.likes;
+          v.numberOfLikes = response.data.likes.length;
+        }
+        return v;
+      }));
+    } catch (error) {
+      if (error.response) {
+        setErrorMessage(error.response.data);
+      } else {
+        setErrorMessage('An error occurred while update like to the video. Please try again.');
+      }
+    }
   };
 
   if (!isLoggedIn) {
@@ -273,7 +333,7 @@ function VideoList() {
           <button className="button button-delete" onClick={handleCancelClick}>Cancel</button>
           </div>
         ) : (
-          <div>
+          <div className="video-container">
             <h2>{video.title}</h2>
             <p>Shared by: {video.sharer.username}</p>
             <p>{video.description}</p>
@@ -290,6 +350,27 @@ function VideoList() {
                 <button className="button button-delete" onClick={() => handleDelete(video._id)}>Delete</button>
               </div>
             )}
+
+            <p>{video.numberOfLikes} likes</p>
+            <button 
+              className={`button ${video.likes.includes(userId) ? 'button-liked' : 'button-unliked'}`} 
+              onClick={() => handleLike(video._id, video.likes.includes(userId))}
+            >
+              {video.likes.includes(userId) ? 'Unlike' : 'Like'}
+            </button>
+
+            <form className="form-comment" onSubmit={(event) => handleCommentSubmit(event, video._id)}>
+              <label>
+                Comment:
+                <input className="input-field" name="commentInput" placeholder="Comment"/>
+              </label>
+              <input type="submit" value="Submit" />
+            </form>
+            {video.comments.length > 0 && video.comments.map((comment) => (
+              <div key={comment.id}>
+                <p>{comment.username}: {comment.content}</p>
+              </div>
+            ))}
           </div>
         )}
       </div>
